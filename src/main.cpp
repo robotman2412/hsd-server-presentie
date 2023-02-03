@@ -1,11 +1,15 @@
 
 #include "main.hpp"
+#include "data.hpp"
+#include "api.hpp"
 
 #include <unistd.h>
 
-static mqtt::async_client *client;
+mqtt::async_client *client;
 
 int main(int argc, char **argv) {
+	Database::load();
+	
 	client = new mqtt::async_client("tcp://localhost:1883/", "lololol");
 	client->set_connected_handler(onMqttConnected);
 	client->set_connection_lost_handler(onMqttConnectionLost);
@@ -14,9 +18,11 @@ int main(int argc, char **argv) {
 	
 	while (1) {
 		usleep(1000000);
-		if (!client->is_connected()) {
-			client->reconnect();
-		}
+		try {
+			if (!client->is_connected()) {
+				client->reconnect();
+			}
+		} catch(...) {}
 	}
 }
 
@@ -36,4 +42,16 @@ void onMqttConnectionLost(const std::string &reason) {
 // Called by MQTT client when message arrives.
 void onMqttMessage(mqtt::const_message_ptr message) {
 	std::cout << message->get_topic() << ": " << message->get_payload_str() << '\n';
+	
+	try {
+		if (message->get_topic() == Topic::cardSwipes) {
+			Api::cardSwiped(message);
+		}
+	} catch(json::parse_error err) {
+		std::cout << "JSON parse error at position " << err.byte << ": " << err.what() << '\n';
+	} catch(json::type_error err) {
+		std::cout << "JSON invalid type: " << err.what() << '\n';
+	} catch(std::exception e) {
+		std::cout << e.what() << '\n';
+	}
 }

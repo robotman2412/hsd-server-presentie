@@ -1,7 +1,12 @@
 
 #pragma once
 
+#include "json.hpp"
+
 #include <string>
+#include <mqtt/async_client.h>
+
+extern mqtt::async_client *client;
 
 namespace Topic {
 
@@ -11,12 +16,10 @@ const std::string cardSwipes("card-swipes");
 const std::string cardMatches("card-matches");
 // Not found for swiped cards are sent here.
 const std::string cardUnknowns("card-unknowns");
+// Presence changes for users are sent here.
+const std::string presence("presence");
 
 };
-
-#include <nlohmann/json.hpp>
-#include <mqtt/async_client.h>
-using json = nlohmann::json;
 
 // Called by MQTT client when connection is established.
 void onMqttConnected(const std::string &reason);

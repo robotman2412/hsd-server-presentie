@@ -10,7 +10,12 @@ static std::vector<UserId> presence;
 
 // ==== helper functions ==== //
 
-// Handle entry/exit actions.
+// Is user currently present?
+bool isPresent(const User &user) {
+	return std::find(presence.begin(), presence.end(), user.id) != presence.end();
+}
+
+// Handle enter/exit actions.
 void actionExtryOrExit(User &user) {
 	// Look up user ID in presence list.
 	auto iter = std::find(presence.begin(), presence.end(), user.id);
@@ -21,7 +26,7 @@ void actionExtryOrExit(User &user) {
 		
 		json obj;
 		obj["user"] = user.toJson();
-		obj["presence"] = true;
+		obj["user"]["presence"] = true;
 		client->publish(Topic::presence, obj.dump());
 		
 	} else {
@@ -30,8 +35,27 @@ void actionExtryOrExit(User &user) {
 		
 		json obj;
 		obj["user"] = user.toJson();
-		obj["presence"] = false;
+		obj["user"]["presence"] = false;
 		client->publish(Topic::presence, obj.dump());
+	}
+}
+
+// Handle register tag actions.
+void actionRegisterTag(const Tag &tag) {
+	
+}
+
+// Query list of users actions.
+// This can get expensive for large amounts of users.
+void actionQueryUsers() {
+	json obj;
+	
+	// Dump all users from the database into the json object.
+	auto &arr = obj["users"] = json::array();
+	for (auto &iter: Database::getUsers()) {
+		json userJson = iter.second.toJson();
+		userJson["presence"] = isPresent(iter.second);
+		arr.push_back(std::move(userJson));
 	}
 }
 
@@ -39,12 +63,17 @@ void actionExtryOrExit(User &user) {
 
 // ==== API callbacks ==== //
 
-// Handle message from Topics::cardSwipes.
+// Handle actions triggered by card swipes.
 void Api::cardSwiped(mqtt::const_message_ptr message) {
 	// Card swiped: Look up the tag.
 	json obj  = json::parse(message->get_payload());
 	Tag  tag  = Tag::fromHexString(obj["tag"]);
 	User user = User::find(tag);
+	
+	if (obj["action"] == "register_tag") {
+		// Register this tag to the user.
+		actionRegisterTag(tag);
+	}
 	
 	if (!user) {
 		// User not found.
@@ -59,5 +88,16 @@ void Api::cardSwiped(mqtt::const_message_ptr message) {
 	if (obj["action"] == "enter_or_exit") {
 		// Entry or exit toggle.
 		actionExtryOrExit(user);
+	}
+}
+
+// Handle inquiry actions.
+void Api::inquiries(mqtt::const_message_ptr message) {
+	// General inquiry.
+	json obj  = json::parse(message->get_payload());
+	
+	if (obj["action"] == "query_users") {
+		// Query list of all users.
+		actionQueryUsers();
 	}
 }

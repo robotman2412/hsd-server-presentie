@@ -2,9 +2,9 @@
 #include "data.hpp"
 
 // Tag to user ID map.
-std::map<Tag, uint64_t> tagToUser;
+std::map<Tag, UserId> tagToUser;
 // User ID to user map.
-std::map<uint64_t, User> users;
+std::map<UserId, User> users;
 
 
 
@@ -266,4 +266,9 @@ void Database::save() {
 	// Open the `users.json` file and save the object.
 	std::ofstream out("data/users.json");
 	out << obj;
+}
+
+// Get a const reference to the users map.
+const std::map<UserId, User> &Database::getUsers() {
+	return users;
 }

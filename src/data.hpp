@@ -111,6 +111,8 @@ namespace Database {
 void load();
 // Store database to disk.
 void save();
+// Get a const reference to the users map.
+const std::map<UserId, User> &getUsers();
 
 }
 

@@ -10,8 +10,11 @@ extern mqtt::async_client *client;
 
 namespace Topic {
 
-// Swiped cards are sent here.
+// Swiped cards are received here.
 const std::string cardSwipes("card-swipes");
+// Actions and inquiries not involving tags are received here.
+const std::string inquiries("inquiries");
+
 // Matches found for swiped cards are sent here.
 const std::string cardMatches("card-matches");
 // Not found for swiped cards are sent here.

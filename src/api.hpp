@@ -6,7 +6,9 @@
 
 namespace Api {
 
-// Handle message from Topics::cardSwipes.
+// Handle actions triggered by card swipes.
 void cardSwiped(mqtt::const_message_ptr raw);
+// Handle inquiry actions.
+void inquiries(mqtt::const_message_ptr raw);
 
 };

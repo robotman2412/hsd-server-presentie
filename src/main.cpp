@@ -30,6 +30,7 @@ int main(int argc, char **argv) {
 void onMqttConnected(const std::string &reason) {
 	std::cout << "MQTT connected\n";
 	client->subscribe(Topic::cardSwipes, 2);
+	client->subscribe(Topic::inquiries,  2);
 }
 
 // Called by MQTT client when connection is lost (but no explicit disconnect packet).
@@ -46,6 +47,8 @@ void onMqttMessage(mqtt::const_message_ptr message) {
 	try {
 		if (message->get_topic() == Topic::cardSwipes) {
 			Api::cardSwiped(message);
+		} else if (message->get_topic() == Topic::inquiries) {
+			Api::inquiries(message);
 		}
 	} catch(json::parse_error err) {
 		std::cout << "JSON parse error at position " << err.byte << ": " << err.what() << '\n';

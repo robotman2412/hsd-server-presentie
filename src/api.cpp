@@ -73,6 +73,7 @@ void Api::cardSwiped(mqtt::const_message_ptr message) {
 	if (obj["action"] == "register_tag") {
 		// Register this tag to the user.
 		actionRegisterTag(tag);
+		return;
 	}
 	
 	if (!user) {

@@ -3,7 +3,7 @@
 
 #include <string>
 
-namespace topic {
+namespace Topic {
 
 // Swiped cards are sent here.
 const std::string cardSwipes("card-swipes");

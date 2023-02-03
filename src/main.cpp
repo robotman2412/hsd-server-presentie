@@ -23,7 +23,7 @@ int main(int argc, char **argv) {
 // Called by MQTT client when connection is established.
 void onMqttConnected(const std::string &reason) {
 	std::cout << "MQTT connected\n";
-	client->subscribe(topic::cardSwipes, 2);
+	client->subscribe(Topic::cardSwipes, 2);
 }
 
 // Called by MQTT client when connection is lost (but no explicit disconnect packet).
